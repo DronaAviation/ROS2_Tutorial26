@@ -272,22 +272,16 @@ Each `FAIL` prints the command that fixes it underneath. Resolve every failure b
    cd ~/ROS2_Tutorial
    code .
    ```
-3. Move the terminal panel to the right: **View → Appearance → Panel Position → Right**.
-4. Open `README.md` and press **Ctrl+Shift+V** to see it rendered. It fills the left side.
-5. Open a terminal with **Ctrl+`** (the backtick key). Click the **split** icon in the terminal panel three times, so you have **four** terminals, stacked. In the terminal list, right-click each one, top to bottom → **Rename** → `T1`, `T2`, `T3`, `T4`.
-6. Drag the border between the README and the terminals to the middle of the window.
+3. Open `README.md`, press **Ctrl+Shift+V** to see it rendered, and drag that tab to the **left** half.
+4. Open a terminal with **Ctrl+`** (the backtick key). Click the **split** icon in the terminal panel three times, so you have **four** terminals. Right-click each → **Rename** → `T1`, `T2`, `T3`, `T4`.
 
 You should see:
 
 ```
 +---------------------------+---------------------------+
-|                           |  T1                       |
-|                           |---------------------------|
-|                           |  T2                       |
-|   README (this file)      |---------------------------|
-|                           |  T3                       |
-|                           |---------------------------|
-|                           |  T4                       |
+|                           |  T1          |  T2        |
+|   README (this file)      |--------------+------------|
+|                           |  T3          |  T4        |
 +---------------------------+---------------------------+
 ```
 
