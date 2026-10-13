@@ -64,6 +64,8 @@ Despite the name. It is a set of libraries (`rclpy`), command-line tools (`ros2 
 | `ros2 topic echo <topic>`                | What is being said on this channel right now? |
 | `ros2 topic pub <topic> <type> "<data>"` | Let me say something on this channel myself.  |
 
+Services, actions and parameters get their own hands-on tour in [section 8](#8-extra-ros-2-basics-on-the-command-line), using turtlesim and no code. Do it before or after Lab 1.
+
 ---
 
 ### Check your understanding
@@ -103,7 +105,7 @@ sudo apt update && sudo apt install -y git
 git clone https://github.com/DronaAviation/ROS2_Tutorial26.git ~/ROS2_Tutorial
 ```
 
-*Keep the folder name `~/ROS2_Tutorial`: every command in this tutorial uses that path.*
+*Keep the folder name `~/ROS2_Tutorial`: every command in this tutorial uses that path. To get updates later: `cd ~/ROS2_Tutorial && git pull`.*
 
 Everything else in this section is also in `install.sh`, which runs the same commands:
 
@@ -270,18 +272,26 @@ Each `FAIL` prints the command that fixes it underneath. Resolve every failure b
    cd ~/ROS2_Tutorial
    code .
    ```
-3. Open `README.md`, press **Ctrl+Shift+V** to see it rendered, and drag that tab to the **left** half.
-4. Open a terminal with **Ctrl+`** (the backtick key). Click the **split** icon in the terminal panel three times, so you have **four** terminals. Right-click each → **Rename** → `T1`, `T2`, `T3`, `T4`.
+3. Move the terminal panel to the right: **View → Appearance → Panel Position → Right**.
+4. Open `README.md` and press **Ctrl+Shift+V** to see it rendered. It fills the left side.
+5. Open a terminal with **Ctrl+`** (the backtick key). Click the **split** icon in the terminal panel three times, so you have **four** terminals, stacked. In the terminal list, right-click each one, top to bottom → **Rename** → `T1`, `T2`, `T3`, `T4`.
+6. Drag the border between the README and the terminals to the middle of the window.
 
 You should see:
 
 ```
 +---------------------------+---------------------------+
-|                           |  T1          |  T2        |
-|   README (this file)      |--------------+------------|
-|                           |  T3          |  T4        |
+|                           |  T1                       |
+|                           |---------------------------|
+|                           |  T2                       |
+|   README (this file)      |---------------------------|
+|                           |  T3                       |
+|                           |---------------------------|
+|                           |  T4                       |
 +---------------------------+---------------------------+
 ```
+
+*Small screen? **Ctrl+B** hides the file list and gives the README more room.*
 
 What each terminal is for, in every lab:
 
@@ -305,10 +315,16 @@ Expected: `ROS 2 humble ready (this laptop only). Tutorial folder: /home/<you>/R
 It loads ROS 2, loads the Pluto packages, sets `ROS_LOCALHOST_ONLY=1` (restricting ROS 2 discovery to this machine, so nodes on other laptops on the same network are neither seen nor controlled), and changes into the tutorial folder.
 Skip it and you get `ros2: command not found`, or two of your programs can't see each other.
 
-To make it automatic in every new terminal, run once:
+Optional: to make it automatic in every new terminal, run once:
 
 ```bash
 echo "source ~/ROS2_Tutorial/env.sh" >> ~/.bashrc
+```
+
+*From then on, every new terminal starts in `~/ROS2_Tutorial` and keeps ROS 2 on this laptop only, including later for other projects. To undo it:*
+
+```bash
+sed -i '/ROS2_Tutorial\/env.sh/d' ~/.bashrc
 ```
 
 ---
@@ -318,7 +334,7 @@ echo "source ~/ROS2_Tutorial/env.sh" >> ~/.bashrc
 - **Copy / paste** in a terminal: **Ctrl+Shift+C** / **Ctrl+Shift+V**. Plain **Ctrl+C** does not copy: it **stops the program**.
 - A terminal that is running a program can't take a new command. Use another one.
 - **Ctrl+C** stops the program in that terminal. Each lab ends with a **Tidy up** section that lists which terminals to stop, in which order, so the next lab starts from a clean state.
-- Copying a command from this README: hover the code box, click the copy icon at its top-right, then **Ctrl+Shift+V** in the terminal.
+- Copying a command from this README: select it with the mouse and press **Ctrl+C** (in the README, Ctrl+C copies; only in a terminal does it stop the program), then **Ctrl+Shift+V** in the terminal. On GitHub, each code box also has a copy icon at its top-right.
 
 ---
 
@@ -724,8 +740,6 @@ Reset the drone to the ground: **Ctrl+C** in T1, run 2.1 again. T2 (the bridge) 
 
 **Ctrl+C** in T4, T2 and T1. If the Gazebo window stays open, close it with its window button.
 
-> **ROS 2 Jazzy + Gazebo Harmonic:** `gz sim -r …` in 2.1, `gz.msgs.Twist` in 2.2, `gz topic -l` in 2.3.
-
 ---
 
 ### Check your understanding
@@ -773,6 +787,8 @@ Because this drone keeps obeying its last command. Exiting mid-climb without a h
 | The drone has flipped or crashed                               | It hit the ground or flew too fast                      | Ctrl+C in T1, then run step 2.1 again                                           |
 
 General problems: [section 9](#9-troubleshooting).
+
+> **Later, on ROS 2 Jazzy (Ubuntu 24.04):** Gazebo Harmonic replaces Fortress, and `ign` becomes `gz`: `gz sim -r …` in 2.1, `gz.msgs.Twist` in 2.2, `gz topic -l` in 2.3. This tutorial itself supports Humble only.
 
 ---
 
