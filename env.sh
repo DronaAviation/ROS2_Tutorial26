@@ -20,7 +20,7 @@ if [ -f "$PLUTO_WS/install/setup.bash" ]; then
     source "$PLUTO_WS/install/setup.bash"
 fi
 
-# Your own workspace from README.md section 10, if you have built it
+# Your own workspace from LAB_HANDOUT.md Extra B, if you have built it
 if [ -f "$HOME/ros2_ws/install/setup.bash" ]; then
     source "$HOME/ros2_ws/install/setup.bash"
 fi

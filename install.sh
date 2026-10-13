@@ -54,4 +54,4 @@ ign fuel download -u "https://fuel.gazebosim.org/1.0/OpenRobotics/models/X4 UAV 
 
 echo
 echo "Done. Now run:   bash ~/ROS2_Tutorial/check_setup.sh"
-echo "If every check passes, open a new terminal and start with README.md."
+echo "If every check passes, open a new terminal and start with LAB_HANDOUT.md."

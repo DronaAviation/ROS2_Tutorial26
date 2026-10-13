@@ -2,5 +2,6 @@ __pycache__/
 *.pyc
 .DS_Store
 
-# Reference solutions to TASKS.md: instructors only, never committed
+# Teacher-only material: never committed
 solutions/
+TEACHER_GUIDE.md
