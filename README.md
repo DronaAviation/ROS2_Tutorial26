@@ -340,6 +340,16 @@ You will drive a turtle with the keyboard, then from the terminal, then with you
 
 **Prerequisite:** `bash ~/ROS2_Tutorial/check_setup.sh` reports `PASS` for the Lab 1 checks (`turtlesim`, `rqt_graph`, `rclpy`).
 
+**Experiments in this lab**
+
+| Experiment | What you do | Steps |
+| ---------- | ----------- | ----- |
+| **1A** — Drive the turtle with the keyboard | Start turtlesim and the keyboard node | 1.1 – 1.2 |
+| **1B** — See the topic that connects them | `rqt_graph`, `ros2 node/topic`, `topic echo` | 1.3 – 1.5 |
+| **1C** — Drive the turtle yourself | `ros2 topic pub`, then `turtle_circle.py` | 1.6 – 1.7 |
+| **1D** — Read the turtle's position | `turtle_pose.py` | 1.8 |
+| **1E** — Change the plan (exercise) | Edit `STEPS`: square, triangle, bigger circle | — |
+
 First, the setup line in **T1, T2, T3 and T4**:
 
 ```bash
@@ -348,7 +358,11 @@ source ~/ROS2_Tutorial/env.sh
 
 ---
 
-### 1.1 — T1: start the robot
+### Experiment 1A — Drive the turtle with the keyboard
+
+**Goal:** steer a turtle with the arrow keys. · *Terminals: T1, T2*
+
+#### 1.1 — T1: start the robot
 
 ```bash
 ros2 run turtlesim turtlesim_node
@@ -362,9 +376,7 @@ Expected: a blue window with a turtle in the middle, and in T1:
 
 *T1 belongs to the robot for the rest of the lab. Don't type in it again; don't close the window.*
 
----
-
-### 1.2 — T2: drive with the keyboard
+#### 1.2 — T2: drive with the keyboard
 
 ```bash
 ros2 run turtlesim turtle_teleop_key
@@ -378,7 +390,11 @@ ros2 run turtlesim turtle_teleop_key
 
 ---
 
-### 1.3 — T3: see who talks to whom
+### Experiment 1B — See the topic that connects them
+
+**Goal:** see the one topic that joins the keyboard to the turtle. · *Terminal: T3*
+
+#### 1.3 — T3: see who talks to whom
 
 ```bash
 rqt_graph
@@ -389,9 +405,7 @@ No arrow? Choose **Nodes/Topics (active)** in the top-left drop-down and click r
 
 *Two programs, one topic. The keyboard node talks on `/turtle1/cmd_vel`; the turtle listens there. Neither knows the other's name.*
 
----
-
-### 1.4 — T3: inspect from the command line (one at a time)
+#### 1.4 — T3: inspect from the command line (one at a time)
 
 ```bash
 ros2 node list
@@ -413,9 +427,7 @@ Look for: `/turtlesim` in the node list · `/turtle1/cmd_vel` in the topic list 
 
 *Same picture as `rqt_graph`, as text. These four commands work on a real robot with no screen. The turtle uses only two of the six numbers: `linear.x` = forward speed, `angular.z` = turn rate (rad/s, positive = left).*
 
----
-
-### 1.5 — T3: watch the messages
+#### 1.5 — T3: watch the messages
 
 ```bash
 ros2 topic echo /turtle1/cmd_vel
@@ -438,7 +450,11 @@ Try ← (`angular: z: 2.0`), ↓ (`x: -2.0`), → (`z: -2.0`). Then **Ctrl+C** i
 
 ---
 
-### 1.6 — T3: be the keyboard yourself
+### Experiment 1C — Drive the turtle yourself: terminal, then a Python publisher
+
+**Goal:** replace the keyboard — first with one command, then with a Python publisher. · *Terminal: T3*
+
+#### 1.6 — T3: be the keyboard yourself
 
 ```bash
 ros2 topic pub --rate 1 /turtle1/cmd_vel geometry_msgs/msg/Twist "{linear: {x: 2.0}, angular: {z: 1.8}}"
@@ -450,9 +466,7 @@ Try: bigger `z` = tighter circle · negative `z` = clockwise · `x: 0.0` = spin 
 
 *We are now the keyboard program: same topic, same message type, our numbers. The turtle stops 1 s after the last command, which is why this repeats once a second (`--rate 1`) instead of sending once (`--once`). Remember this for Lab 2.*
 
----
-
-### 1.7 — T3: run our publisher
+#### 1.7 — T3: run our publisher
 
 Open `turtle_circle.py` in the editor. Find `TOPIC`, `RATE_HZ`, `twist(...)`, `STEPS` and `StepPublisher`. `STEPS` is the plan: a list of `(name, seconds, message)`.
 
@@ -478,7 +492,11 @@ Expected: one full circle, then the script exits by itself:
 
 ---
 
-### 1.8 — T4: run our subscriber
+### Experiment 1D — Read the turtle's position: a Python subscriber
+
+**Goal:** listen to the turtle — a Python subscriber that prints where it is. · *Terminal: T4*
+
+#### 1.8 — T4: run our subscriber
 
 ```bash
 python3 1_turtlesim/turtle_pose.py
@@ -498,7 +516,9 @@ Now drive with T2 (click T2 first). The numbers change. `x`, `y` run 0 → ~11 f
 
 ---
 
-### Exercise: change the plan
+### Experiment 1E — Change the plan (exercise)
+
+**Goal:** make the turtle draw a new shape by editing data, not code. · *Terminal: T3*
 
 Edit **only** `STEPS` in `turtle_circle.py`. For a square:
 
@@ -519,7 +539,7 @@ ros2 service call /reset std_srvs/srv/Empty
 python3 1_turtlesim/turtle_circle.py
 ```
 
-#### Optional experiments
+#### More to try
 
 - **Triangle:** turn `2 * math.pi / 3` (120°) in 1 s, repeated three times.
 - **Bigger circle:** `forward=3.0`, keep `turn=1.0`. The radius is forward speed divided by turn rate, so this gives 3 m instead of 1 m.
@@ -584,6 +604,7 @@ Turtlesim is not running (or this terminal skipped the setup line, so it cannot 
 | What you see                                             | Likely cause                                                      | Fix                                                                                                           |
 | -------------------------------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | The arrow keys do nothing                                | `turtle_teleop_key` is not running, or another window is active | Start it in T2 (step 1.2), click inside T2, and press the keys there. The turtle window ignores the keyboard. |
+| The keys print in T2 but the turtle never moves; `ros2 topic info /turtle1/cmd_vel` shows `Subscription count: 0` | T1 and T2 have different ROS settings (for example `ROS_LOCALHOST_ONLY=0` in one, `1` in the other), so they can't find each other | Run `printenv ROS_LOCALHOST_ONLY` in T1 and T2: both must print `1`. Stop both programs, run the setup line in each, start them again |
 | The keys worked, then stopped                            | You clicked another window, such as the turtle window             | Click back inside T2                                                                                          |
 | No turtle window; `could not connect to display`        | Running over SSH, or no desktop session                           | Run it on the machine's own desktop                                                                           |
 | `rqt_graph` shows no arrow                             | The view shows nodes only, or has not refreshed                   | Choose **Nodes/Topics (active)** at the top left and click refresh                                       |
@@ -604,6 +625,15 @@ General problems (`command not found`, `rclpy` missing, nodes not seeing each ot
 
 **Prerequisite:** Lab 1 completed, and `check_setup.sh` reports `PASS` for the Lab 2 checks (`ign`, `ros_gz_bridge`, the X3 model).
 
+**Experiments in this lab**
+
+| Experiment | What you do | Steps |
+| ---------- | ----------- | ----- |
+| **2A** — Start the simulated drone and the bridge | Gazebo, `parameter_bridge`, inspect | 2.1 – 2.3 |
+| **2B** — Take off and hover from the terminal | `ros2 topic pub --once` | 2.4 |
+| **2C** — Fly with our publisher | `sim_drone.py`, then `diff` it with the turtle script | 2.5 – 2.7 |
+| **2D** — Fly your own plan (exercise) | Edit `STEPS` in `sim_drone.py` | — |
+
 **Gazebo** is a physics simulator — gravity, collisions, motors, a 3D world. It is **not** a ROS program: it has its own messages and topics, so a **bridge** translates between the two.
 
 Open **four new terminals**. Setup line in each:
@@ -614,7 +644,11 @@ source ~/ROS2_Tutorial/env.sh
 
 ---
 
-### 2.1 — T1: start the simulator
+### Experiment 2A — Start the simulated drone and the bridge
+
+**Goal:** a simulated quadcopter that ROS 2 can talk to. · *Terminals: T1, T2, T3*
+
+#### 2.1 — T1: start the simulator
 
 ```bash
 ign gazebo -r multicopter_velocity_control.sdf
@@ -624,9 +658,7 @@ Expected: Gazebo opens with two drones on the ground. Ours is **X3**, the quadco
 
 *`-r` = run. Without it the simulation is paused and the drone ignores every command until you press ▶ at the bottom left.*
 
----
-
-### 2.2 — T2: start the bridge
+#### 2.2 — T2: start the bridge
 
 ```bash
 ros2 run ros_gz_bridge parameter_bridge "/X3/gazebo/command/twist@geometry_msgs/msg/Twist]ignition.msgs.Twist"
@@ -636,9 +668,7 @@ Expected: a line starting `Creating ROS->GZ Bridge`. Leave T2 running.
 
 *Read the quoted part left to right: the topic name · `@` the ROS message type · `]` one way, ROS → Gazebo · the Gazebo message type.*
 
----
-
-### 2.3 — T3: inspect
+#### 2.3 — T3: inspect
 
 ```bash
 ros2 node list
@@ -658,7 +688,11 @@ Expected: **one** ROS node, `/ros_gz_bridge`. The topic list includes `/X3/gazeb
 
 ---
 
-### 2.4 — T3: take off, then hover
+### Experiment 2B — Take off and hover from the terminal
+
+**Goal:** lift off and hover with two one-line commands. · *Terminal: T3*
+
+#### 2.4 — T3: take off, then hover
 
 ```bash
 ros2 topic pub --once /X3/gazebo/command/twist geometry_msgs/msg/Twist "{linear: {z: 0.5}}"
@@ -678,7 +712,11 @@ Expected: it stops and holds height. `"{}"` is a `Twist` with every value 0.
 
 ---
 
-### 2.5 — T4: watch the messages
+### Experiment 2C — Fly with our publisher
+
+**Goal:** fly a circle with the same publisher you wrote for the turtle. · *Terminals: T3, T4*
+
+#### 2.5 — T4: watch the messages
 
 ```bash
 ros2 topic echo /X3/gazebo/command/twist
@@ -686,15 +724,13 @@ ros2 topic echo /X3/gazebo/command/twist
 
 Prints nothing until something publishes. Leave it running.
 
----
-
-### 2.6 — T3: run our publisher
+#### 2.6 — T3: run our publisher
 
 ```bash
 python3 2_gazebo/sim_drone.py
 ```
 
-Expected: climb 1.5 m → one circle → hover → descend → hover, and in T3:
+Expected: climb about 1.5 m → one circle → hover → descend → hover, and in T3:
 
 ```
 [INFO] [...] [sim_drone]: climb (3.0 s)
@@ -706,11 +742,9 @@ Expected: climb 1.5 m → one circle → hover → descend → hover, and in T3:
 
 T4 fills with the same `Twist` messages you saw for the turtle, 10 a second.
 
-*`STEPS`: climb 0.5 m/s × 3 s = 1.5 m · circle `forward=1.0, turn=1.0` = one lap, 1 m radius · descend a little longer than the climb. Ctrl+C part-way sends hover first — otherwise the drone would keep its last command forever.*
+*`STEPS`: climb 0.5 m/s × 3 s = 1.5 m · circle `forward=1.0, turn=1.0` = one lap, 1 m radius (the real drone comes up a little short on both: it needs time to speed up) · descend a little longer than the climb. Ctrl+C part-way sends hover first — otherwise the drone would keep its last command forever.*
 
----
-
-### 2.7 — T3: see how little the code changed
+#### 2.7 — T3: see how little the code changed
 
 ```bash
 diff 1_turtlesim/turtle_circle.py 2_gazebo/sim_drone.py
@@ -722,7 +756,9 @@ Expected: only the description, `TOPIC`, the node name, `STEPS` and the Ctrl+C c
 
 ---
 
-### Exercise: fly your own plan
+### Experiment 2D — Fly your own plan (exercise)
+
+**Goal:** design and fly your own flight plan. · *Terminal: T3*
 
 Edit `STEPS` in `2_gazebo/sim_drone.py`. **Climb higher:** climb 6 s, descend 7 s. **Two circles:** `4 * math.pi` seconds. **A square:** the turtle's square steps, with a climb before and a descend after.
 
@@ -794,7 +830,20 @@ This lab needs a Pluto drone, a charged battery, and 2 m of clear floor. About 4
 
 **Prerequisite:** Labs 1 and 2 completed; `check_setup.sh` reports `PASS` for the Lab 3 checks (`custom_msgs`, `plutodrone`, `plutoserver`, `pluto_camera_sense`, `pynput`, OpenCV, `ffmpeg`).
 
+**Experiments in this lab**
+
+| Experiment | What you do | Steps |
+| ---------- | ----------- | ----- |
+| **3A** — Connect to the drone and read telemetry | `plutonode`, `plutoserver`, inspect | 3.1 – 3.3 |
+| **3B** — Fly with the keyboard | `drone_comb.launch.py` | 3.4 – 3.5 |
+| **3C** — Fly from the terminal | `ros2 topic pub --once` with `PlutoMsg` | 3.6 |
+| **3D** — Fly with our script | `pluto_flight.py` | 3.7 |
+| **3E** — Write your own telemetry server (exercise) | `pluto_telemetry.py` | — |
+| **3F** — See through the drone's camera | `pluto_camera.py` | 3.8 |
+
 If you are following this lab without a drone of your own (for example, watching one being flown), do steps 3.1 – 3.3 and 3.5 – 3.7 by reading the commands and the expected output; everything the drone does is visible in the `ros2 topic echo` of step 3.3.
+
+---
 
 ### Safety — read before every flight
 
@@ -817,7 +866,11 @@ source ~/ROS2_Tutorial/env.sh
 
 ---
 
-### 3.1 — T1: connect to the drone
+### Experiment 3A — Connect to the drone and read telemetry
+
+**Goal:** a live link to the real drone, with its sensor readings on screen. · *Terminals: T1, T2, T4*
+
+#### 3.1 — T1: connect to the drone
 
 ```bash
 ros2 run plutodrone plutonode
@@ -827,9 +880,7 @@ Expected: `Pluto Connected`. (`Cannot connect to Pluto` → you're not on the dr
 
 *`plutonode` is this lab's bridge: ROS messages on one side, the drone's own protocol over Wi-Fi on the other. It resends the latest command every 22 ms.*
 
----
-
-### 3.2 — T2: telemetry
+#### 3.2 — T2: telemetry
 
 ```bash
 ros2 run plutoserver plutoserver
@@ -839,14 +890,12 @@ Expected: `Ready to Provide Pluto Service`, then Roll/Pitch/Yaw, Altitude, Batte
 
 *This is a **service**, not a topic — and the roles are the opposite of what you'd expect. `plutonode` is the service client: it packs the sensor readings into a request and calls `/pluto_service` many times a second. `plutoserver` is the server: it receives them and prints them. Step 3.3 shows this.*
 
----
-
-### 3.3 — T4: inspect, then watch commands
+#### 3.3 — T4: inspect, then watch commands
 
 ```bash
 ros2 node list
 ros2 interface show custom_msgs/msg/PlutoMsg
-ros2 topic echo /drone_command
+ros2 topic echo /drone_command custom_msgs/msg/PlutoMsg
 ```
 
 Expected: `/pluto_node`, `/pluto_service`; the `PlutoMsg` fields; then the echo waits.
@@ -857,7 +906,11 @@ Expected: `/pluto_node`, `/pluto_service`; the `PlutoMsg` fields; then the echo 
 
 ---
 
-### 3.4 — T3: fly with the keyboard
+### Experiment 3B — Fly with the keyboard
+
+**Goal:** a first flight, by hand. · *Terminal: T3*
+
+#### 3.4 — T3: fly with the keyboard
 
 ```bash
 ros2 launch plutoserver drone_comb.launch.py
@@ -876,15 +929,17 @@ Sequence: **space** → **q** → gentle moves → **e** → **space**. Watch `r
 
 *Two nodes: `key_command` reads keys (with `pynput`, from the whole laptop) and publishes a number on `/input_key`; `key_handling` turns it into a `PlutoMsg` on `/drone_command`. Check with `ros2 node info /key_handling`.*
 
----
-
-### 3.5 — T3: stop keyboard control
+#### 3.5 — T3: stop keyboard control
 
 **Ctrl+C** in T3. Typing is safe again.
 
 ---
 
-### 3.6 — T3: fly from the terminal (one command at a time, wait between)
+### Experiment 3C — Fly from the terminal
+
+**Goal:** take off, land and disarm with single commands. · *Terminal: T3*
+
+#### 3.6 — T3: fly from the terminal (one command at a time, wait between)
 
 ```bash
 # take off (also arms)
@@ -901,7 +956,11 @@ ros2 topic pub --once /drone_command custom_msgs/msg/PlutoMsg "{rc_roll: 1500, r
 
 ---
 
-### 3.7 — T3: fly with our script
+### Experiment 3D — Fly with our script
+
+**Goal:** a complete flight run by `StepPublisher`. · *Terminal: T3*
+
+#### 3.7 — T3: fly with our script
 
 ```bash
 python3 3_pluto/pluto_flight.py
@@ -922,7 +981,9 @@ Run it the first time **with the propellers removed** and watch T4: `command_typ
 
 ---
 
-### Exercise — write your own telemetry server (T2)
+### Experiment 3E — Write your own telemetry server (exercise, T2)
+
+**Goal:** replace `plutoserver` with your own 20-line service server. · *Terminal: T2*
 
 Stop `plutoserver` in T2 (**Ctrl+C**), then:
 
@@ -938,7 +999,11 @@ Expected: `battery=… V  altitude=…  roll=…  pitch=…  yaw=…`, twice a s
 
 ---
 
-### 3.8 — Camera (separate demo)
+### Experiment 3F — See through the drone's camera
+
+**Goal:** live video from the drone in a window on your laptop. · *Terminals: T1, T2, T3*
+
+#### 3.8 — Camera (separate demo)
 
 Land, disarm, stop T1 and T2. Join the **camera module's** Wi-Fi. Then:
 
@@ -1298,7 +1363,7 @@ ros2 pkg create --build-type ament_python --license MIT demo_pkg --dependencies 
 ls demo_pkg
 ```
 
-Expected: `package.xml  setup.py  setup.cfg  resource/  demo_pkg/  test/`.
+Expected: `LICENSE  package.xml  setup.py  setup.cfg  resource/  demo_pkg/  test/`.
 
 Now copy the finished package from the tutorial folder next to it:
 
@@ -1388,7 +1453,7 @@ Open `launch/talker_listener.launch.py`: a Python function that returns a list o
 
 ---
 
-### 10.6 — T1: Lab 1's exercise, as a real package
+### 10.6 — T1: Lab 1's exercise (Experiment 1E), as a real package
 
 ```bash
 ros2 launch tutorial_pkg turtle_square.launch.py

@@ -8,6 +8,7 @@ import time
 
 import rclpy
 from rclpy.node import Node
+from rclpy.signals import SignalHandlerOptions
 from geometry_msgs.msg import Twist
 
 TOPIC = '/turtle1/cmd_vel'
@@ -45,7 +46,9 @@ class TurtleSquare(Node):
 
 
 def main():
-    rclpy.init()
+    # Let Ctrl+C reach our except-block with ROS still running, so the
+    # stop message below can still be published.
+    rclpy.init(signal_handler_options=SignalHandlerOptions.NO)
     node = TurtleSquare()
     try:
         node.run()
