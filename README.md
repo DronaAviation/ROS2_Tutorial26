@@ -3,6 +3,10 @@
 
 > **This tutorial works only on Ubuntu 22.04 with ROS 2 Humble.** Other Ubuntu versions and other ROS 2 distributions are not supported; the install script refuses to run on anything else.
 
+> **In class?** Follow [LAB_HANDOUT.md](LAB_HANDOUT.md): the same experiments and commands, in order, without the explanations. This README is the full reference.
+
+> **Want to write more code?** [TASKS.md](TASKS.md) has eight coding tasks (squares, polygons, a staircase, holding a height) for after Labs 1 and 2.
+
 ---
 
 ## 1. What is ROS?
@@ -172,10 +176,10 @@ Expected: a window with a turtle. Ctrl+C to stop. (You do not need to add anythi
 ROS 2 Humble pairs with Gazebo **Fortress** (the `ign` commands).
 
 ```bash
-sudo apt install ros-humble-ros-gz
+sudo apt install ros-humble-ros-gz ros-humble-teleop-twist-keyboard
 ```
 
-This installs Gazebo Fortress and `ros_gz_bridge`. Then download the drone models once, so the first start of Lab 2 does not spend minutes downloading:
+This installs Gazebo Fortress, `ros_gz_bridge`, and the keyboard controller used in Experiment 2E. Then download the drone models once, so the first start of Lab 2 does not spend minutes downloading:
 
 ```bash
 ign fuel download -u "https://fuel.gazebosim.org/1.0/OpenRobotics/models/X3 UAV"
@@ -197,34 +201,30 @@ Expected: Gazebo opens with two drones on the ground. Close it.
 #### System packages
 
 ```bash
-sudo apt install python3-colcon-common-extensions \
-                 ros-humble-cv-bridge ros-humble-image-transport \
-                 python3-opencv python3-numpy python3-pip ffmpeg
+sudo apt install python3-colcon-common-extensions python3-pip
 pip3 install --user pynput
 ```
 
 | Package                                      | Used by                                              |
 | -------------------------------------------- | ---------------------------------------------------- |
 | `python3-colcon-common-extensions`         | `colcon build` (Pluto workspace, section 10)       |
-| `ros-humble-cv-bridge`, `python3-opencv` | `pluto_camera.py`, the camera publisher            |
-| `ffmpeg`                                   | the camera publisher (H.264 decoding)                |
+| `python3-pip`                              | installing `pynput`                                  |
 | `pynput`                                   | the keyboard control node (`drone_comb.launch.py`) |
 
 #### Build the Pluto workspace
 
-The Pluto ROS 2 packages come from two Drona Aviation repositories. They are built into their own workspace, `~/pluto_ws`, which `env.sh` sources automatically.
+The Pluto ROS 2 packages come from Drona Aviation's `pluto_ros2_package` repository. They are built into their own workspace, `~/pluto_ws`, which `env.sh` sources automatically.
 
 ```bash
 source /opt/ros/humble/setup.bash
 mkdir -p ~/pluto_ws/src
 cd ~/pluto_ws/src
 git clone https://github.com/DronaAviation/pluto_ros2_package.git
-git clone https://github.com/DronaAviation/pluto_cam_ros2.git
 cd ~/pluto_ws
 colcon build --symlink-install
 ```
 
-Expected: `Summary: 5 packages finished` (`custom_msgs`, `plutodrone`, `plutoserver`, `pluto_camera_sense`, `pluto_image_sub`). Warnings about `setup.py` / `easy_install` deprecation are normal.
+Expected: `Summary: 3 packages finished` (`custom_msgs`, `plutodrone`, `plutoserver`). Warnings about `setup.py` / `easy_install` deprecation are normal.
 
 If you keep the workspace somewhere else, set `PLUTO_WS` at the top of `env.sh`.
 
@@ -293,8 +293,8 @@ What each terminal is for, in every lab:
 | ------------ | --------------------------- | ---------------------------------- | ------------------------- | -------------------------------------- |
 | **T1** | The robot                   | `turtlesim_node`                 | Gazebo                    | `plutonode`                          |
 | **T2** | A helper that keeps running | keyboard control                   | bridge                    | `plutoserver`                        |
-| **T3** | Your commands and scripts   | commands, `turtle_circle.py`      | commands, `sim_drone.py` | keyboard, commands, `pluto_flight.py` |
-| **T4** | Watching messages           | `turtle_pose.py`, `topic echo` | `topic echo`            | `topic echo`                         |
+| **T3** | Your commands and scripts   | commands, `turtle_circle.py`      | commands, keyboard, `sim_drone.py` | keyboard, commands, `pluto_flight.py` |
+| **T4** | Watching messages           | `turtle_pose.py`, `topic echo` | `topic echo`, `sim_drone_pose.py` | `topic echo`                         |
 
 ### The setup line
 
@@ -549,6 +549,8 @@ Reset the turtle (`ros2 service call /reset std_srvs/srv/Empty`) before each run
 
 *You changed the robot's behaviour without touching any ROS code. The plan is data.*
 
+**Next:** tasks T1–T4 in [TASKS.md](TASKS.md) go further: a function that builds any square, coloured sides, and an exact square using the turtle's position.
+
 ---
 
 ### Tidy up
@@ -621,9 +623,9 @@ General problems (`command not found`, `rclpy` missing, nodes not seeing each ot
 
 ## 6. Lab 2: Gazebo simulated drone
 
-**The idea:** ROS code moves between robots. Same message type, almost the same script as the turtle, and a quadcopter flies. About 40 minutes.
+**The idea:** ROS code moves between robots. Same message type, almost the same script as the turtle, and a quadcopter flies. About 60 minutes.
 
-**Prerequisite:** Lab 1 completed, and `check_setup.sh` reports `PASS` for the Lab 2 checks (`ign`, `ros_gz_bridge`, the X3 model).
+**Prerequisite:** Lab 1 completed, and `check_setup.sh` reports `PASS` for the Lab 2 checks (`ign`, `ros_gz_bridge`, `teleop_twist_keyboard`, the X3 model).
 
 **Experiments in this lab**
 
@@ -633,6 +635,8 @@ General problems (`command not found`, `rclpy` missing, nodes not seeing each ot
 | **2B** — Take off and hover from the terminal | `ros2 topic pub --once` | 2.4 |
 | **2C** — Fly with our publisher | `sim_drone.py`, then `diff` it with the turtle script | 2.5 – 2.7 |
 | **2D** — Fly your own plan (exercise) | Edit `STEPS` in `sim_drone.py` | — |
+| **2E** — Fly the drone with the keyboard | `teleop_twist_keyboard`, remapped to the drone's topic | 2.8 – 2.9 |
+| **2F** — Read the drone's height: a Python subscriber | A second bridge direction, `sim_drone_pose.py` | 2.10 – 2.12 |
 
 **Gazebo** is a physics simulator — gravity, collisions, motors, a 3D world. It is **not** a ROS program: it has its own messages and topics, so a **bridge** translates between the two.
 
@@ -766,6 +770,96 @@ Reset the drone to the ground: **Ctrl+C** in T1, run 2.1 again. T2 (the bridge) 
 
 ---
 
+### Experiment 2E — Fly the drone with the keyboard
+
+**Goal:** fly the X3 by hand with a ready-made keyboard node, pointed at the drone's topic. · *Terminals: T3, T4*
+
+Start with the drone on the ground (if it is flying: **Ctrl+C** in T1, run 2.1 again). T2 (the bridge) and T4 (`topic echo` from 2.5) keep running.
+
+#### 2.8 — T3: start the keyboard controller
+
+```bash
+ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=/X3/gazebo/command/twist
+```
+
+Expected: a key map, ending `currently: speed 0.50 turn 1.00`.
+
+*`teleop_twist_keyboard` publishes `Twist` on `cmd_vel`. `-r cmd_vel:=/X3/gazebo/command/twist` **remaps** that name, so the node publishes straight to the drone without any code change. Remapping is how you plug a ready-made node into your robot.*
+
+#### 2.9 — T3: fly
+
+Click inside T3 so it gets the keys, then press one key at a time:
+
+| Key | Drone |
+| --- | ----- |
+| `t` | climb (+0.5 m/s) |
+| `b` | descend |
+| `i` / `,` | forward / backward |
+| `j` / `l` | turn left / right on the spot |
+| `k` | **hover** (any key not in the map also stops) |
+
+Try: `t`, wait 3 s, `k` · `i`, wait 2 s, `k` · `j` until it faces you, `k` · `b` until it lands, `k`.
+
+Expected: each key press is one message in T4. Between presses T4 is silent, yet the drone keeps going — it holds the last command, as in 2.4.
+
+*`q` / `z` make every speed 10 % faster / slower. **Ctrl+C** in T3 sends one stop message before it exits.*
+
+**Checkpoint:** you took off, flew forward, turned and landed with the keyboard. **Ctrl+C** in T3.
+
+---
+
+### Experiment 2F — Read the drone's height: a Python subscriber
+
+**Goal:** get the drone's position out of Gazebo and print it from Python, as you did for the turtle in 1D. · *Terminals: T2, T3, T4*
+
+So far the bridge carried messages one way, ROS → Gazebo. The drone's position lives in Gazebo, so it needs the other direction.
+
+#### 2.10 — T2: restart the bridge with a second topic
+
+**Ctrl+C** in T2, then:
+
+```bash
+ros2 run ros_gz_bridge parameter_bridge "/X3/gazebo/command/twist@geometry_msgs/msg/Twist]ignition.msgs.Twist" "/model/x3/odometry@nav_msgs/msg/Odometry[ignition.msgs.Odometry"
+```
+
+Expected: two lines, `Creating ROS->GZ Bridge` for the command and `Creating GZ->ROS Bridge` for the odometry.
+
+*`[` is the other arrow: Gazebo → ROS. **Odometry** = where the robot is (`pose`) and how fast it moves (`twist`). Note the lowercase `x3` in the Gazebo topic name.*
+
+#### 2.11 — T4: run our subscriber
+
+**Ctrl+C** in T4, then:
+
+```bash
+python3 2_gazebo/sim_drone_pose.py
+```
+
+Expected, two lines a second, with the drone on the ground:
+
+```
+[INFO] [...] [sim_drone_pose]: x=0.00  y=-0.00  height=0.05 m  climb rate=+0.00 m/s
+```
+
+*Same shape as `turtle_pose.py`: a subscription and a callback. Only the topic, the message type and the fields printed changed. `height=0.05` on the ground is the distance from the floor to the drone's centre.*
+
+#### 2.12 — T3: fly, and watch the numbers
+
+```bash
+python3 2_gazebo/sim_drone.py
+```
+
+Expected in T4: height climbs to about 1.3 m with `climb rate=+0.50` · `x` and `y` trace the circle while the height sinks slowly to about 1.1 m · height comes back to 0.05 m. You can fly with the keyboard from 2.8 instead.
+
+*Not the 1.5 m the plan promised, and it sags in the circle: the drone needs time to speed up, and leaning into a turn costs lift. A plan of timed velocities cannot notice that; the numbers in T4 can.*
+
+**Checkpoint:** you can read the height off T4 while the drone flies. **Exercise:** `diff 1_turtlesim/turtle_pose.py 2_gazebo/sim_drone_pose.py` — which lines changed?
+
+**Next:** tasks D1–D4 in [TASKS.md](TASKS.md): squares in the air, a spiral staircase, and a node that holds exactly 2.0 m.
+
+*This is how a robot "knows" where it is. Next step (not in this tutorial): one node that both reads the height and sends the command — climb until `height` reaches 2.0, then hover. That is a feedback controller.*
+
+---
+
 ### Tidy up
 
 **Ctrl+C** in T4, T2 and T1. If the Gazebo window stays open, close it with its window button.
@@ -804,6 +898,18 @@ Because this drone keeps obeying its last command. Exiting mid-climb without a h
 
 </details>
 
+<details><summary>6. In step 2.8, how did <code>teleop_twist_keyboard</code> control the drone without any code change?</summary>
+
+It publishes on `cmd_vel`; `-r cmd_vel:=/X3/gazebo/command/twist` renamed that topic at start-up. Any node can be plugged into any robot this way, as long as the message type matches.
+
+</details>
+
+<details><summary>7. In step 2.10, why does the odometry topic use <code>[</code> and the command topic use <code>]</code>?</summary>
+
+The arrow points the way the messages flow. `]` is ROS → Gazebo (we send commands). `[` is Gazebo → ROS (Gazebo sends the position). Use `@` for both ways.
+
+</details>
+
 ### Troubleshooting
 
 | What you see                                                   | Likely cause                                            | Fix                                                                             |
@@ -815,10 +921,12 @@ Because this drone keeps obeying its last command. Exiting mid-climb without a h
 | `ros2 node list` does not show `/ros_gz_bridge`            | The bridge stopped, or T2 skipped the setup line        | Restart step 2.2 in T2                                                          |
 | The drone keeps climbing or circling after you stop the script | Ctrl+C was pressed twice, which skips the hover command | `ros2 topic pub --once /X3/gazebo/command/twist geometry_msgs/msg/Twist "{}"` |
 | The drone has flipped or crashed                               | It hit the ground or flew too fast                      | Ctrl+C in T1, then run step 2.1 again                                           |
+| Keys do nothing in 2.9                                         | Another window has the keyboard                         | Click inside T3 and press the keys there                                        |
+| `sim_drone_pose.py` prints nothing                           | The bridge has only the command topic                   | Restart T2 with both topics, step 2.10                                          |
 
 General problems: [section 9](#9-troubleshooting).
 
-> **Later, on ROS 2 Jazzy (Ubuntu 24.04):** Gazebo Harmonic replaces Fortress, and `ign` becomes `gz`: `gz sim -r …` in 2.1, `gz.msgs.Twist` in 2.2, `gz topic -l` in 2.3. This tutorial itself supports Humble only.
+> **Later, on ROS 2 Jazzy (Ubuntu 24.04):** Gazebo Harmonic replaces Fortress, and `ign` becomes `gz`: `gz sim -r …` in 2.1, `gz.msgs.Twist` in 2.2, `gz topic -l` in 2.3, `gz.msgs.Odometry` in 2.10. This tutorial itself supports Humble only.
 
 ---
 
@@ -828,7 +936,7 @@ General problems: [section 9](#9-troubleshooting).
 
 This lab needs a Pluto drone, a charged battery, and 2 m of clear floor. About 40 minutes.
 
-**Prerequisite:** Labs 1 and 2 completed; `check_setup.sh` reports `PASS` for the Lab 3 checks (`custom_msgs`, `plutodrone`, `plutoserver`, `pluto_camera_sense`, `pynput`, OpenCV, `ffmpeg`).
+**Prerequisite:** Labs 1 and 2 completed; `check_setup.sh` reports `PASS` for the Lab 3 checks (`custom_msgs`, `plutodrone`, `plutoserver`, `pynput`).
 
 **Experiments in this lab**
 
@@ -839,7 +947,6 @@ This lab needs a Pluto drone, a charged battery, and 2 m of clear floor. About 4
 | **3C** — Fly from the terminal | `ros2 topic pub --once` with `PlutoMsg` | 3.6 |
 | **3D** — Fly with our script | `pluto_flight.py` | 3.7 |
 | **3E** — Write your own telemetry server (exercise) | `pluto_telemetry.py` | — |
-| **3F** — See through the drone's camera | `pluto_camera.py` | 3.8 |
 
 If you are following this lab without a drone of your own (for example, watching one being flown), do steps 3.1 – 3.3 and 3.5 – 3.7 by reading the commands and the expected output; everything the drone does is visible in the `ros2 topic echo` of step 3.3.
 
@@ -999,26 +1106,6 @@ Expected: `battery=… V  altitude=…  roll=…  pitch=…  yaw=…`, twice a s
 
 ---
 
-### Experiment 3F — See through the drone's camera
-
-**Goal:** live video from the drone in a window on your laptop. · *Terminals: T1, T2, T3*
-
-#### 3.8 — Camera (separate demo)
-
-Land, disarm, stop T1 and T2. Join the **camera module's** Wi-Fi. Then:
-
-```bash
-ros2 run pluto_camera_sense plutocam_publisher     # T1
-python3 3_pluto/pluto_camera.py                    # T2
-ros2 topic hz /plutocamera/image_raw               # T3
-```
-
-Expected: `Connected to PlutoCamera at 192.168.0.1`, a **Pluto camera** window, a frame rate in T3. Wave at it.
-
-*The drone publishes, your script subscribes. A laptop joins one Wi-Fi at a time, which is why this can't run alongside flight.*
-
----
-
 ### Tidy up
 
 Land and disarm first. **Ctrl+C** in T3, T4. Close the T1 and T2 terminals (trash-can icon), since `plutonode` ignores Ctrl+C. Power off, unplug the battery.
@@ -1059,7 +1146,7 @@ It lands and then disarms, instead of just stopping. "Stop" is not a safe thing 
 
 <details><summary>6. Which two things in this lab are the same idea as the Gazebo bridge?</summary>
 
-`plutonode` (ROS 2 on one side, the drone's own protocol over TCP on the other) and `plutocam_publisher` (the camera's stream in, `sensor_msgs/Image` out). Most hardware needs a translator.
+`plutonode` (ROS 2 on one side, the drone's own protocol over TCP on the other) and `plutoserver` (the drone's sensor data in, readable log lines out). Most hardware needs a translator.
 
 </details>
 
@@ -1078,7 +1165,6 @@ It lands and then disarms, instead of just stopping. "Stop" is not a safe thing 
 | `plutonode` will not stop with Ctrl+C                 | Its sending threads keep running                                    | Close its terminal window, or press Ctrl+\\                                                                             |
 | `plutoserver` prints nothing                          | `plutonode` is not connected, so nothing calls the service        | Check T1 says `Pluto Connected`                                                                                        |
 | `pluto_telemetry.py` and `plutoserver` both running | Two servers on one service name                                     | Stop one. ROS 2 does not prevent two servers with one name, and both receive the calls |
-| No camera window                                        | The laptop is on the wrong Wi-Fi                                    | Join the camera module's Wi-Fi, not `Pluto_XXXX`; check `plutocam_publisher` says `Connected`                      |
 
 General problems: [section 9](#9-troubleshooting).
 
@@ -1505,13 +1591,14 @@ ROS2_Tutorial/
 │   ├── turtle_circle.py   publisher: drives the turtle in one circle
 │   └── turtle_pose.py     subscriber: prints where the turtle is
 ├── 2_gazebo/
-│   └── sim_drone.py       publisher: flies the simulated drone
+│   ├── sim_drone.py       publisher: flies the simulated drone
+│   └── sim_drone_pose.py  subscriber: prints where the simulated drone is
 ├── 3_pluto/
 │   ├── pluto_flight.py    publisher: take off, hover, land, disarm
-│   ├── pluto_telemetry.py service server: receives the drone's sensor data
-│   └── pluto_camera.py    subscriber: shows the drone's camera
-└── 4_workspace/
-    └── tutorial_pkg/      a complete ROS 2 Python package to copy into ~/ros2_ws/src
+│   └── pluto_telemetry.py service server: receives the drone's sensor data
+├── 4_workspace/
+│   └── tutorial_pkg/      a complete ROS 2 Python package to copy into ~/ros2_ws/src
+└── TASKS.md               coding tasks for after Labs 1 and 2
 ```
 
 Keep learning: [ROS 2 Humble tutorials](https://docs.ros.org/en/humble/Tutorials.html) · [Drona Aviation on GitHub](https://github.com/DronaAviation)

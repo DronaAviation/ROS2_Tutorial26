@@ -34,12 +34,10 @@ sudo apt upgrade -y            # required on 22.04 before ROS 2: see the warning
 sudo apt install -y ros-humble-desktop ros-dev-tools
 
 step "5/8  Lab 2: Gazebo (Fortress) and the ROS <-> Gazebo bridge"
-sudo apt install -y ros-humble-ros-gz
+sudo apt install -y ros-humble-ros-gz ros-humble-teleop-twist-keyboard
 
 step "6/8  Lab 3 + your-own-package (section 10) dependencies"
-sudo apt install -y python3-colcon-common-extensions \
-                    ros-humble-cv-bridge ros-humble-image-transport \
-                    python3-opencv python3-numpy python3-pip ffmpeg
+sudo apt install -y python3-colcon-common-extensions python3-pip
 pip3 install --user pynput
 
 step "7/8  Lab 3: build the Pluto workspace in ~/pluto_ws"
@@ -47,7 +45,6 @@ source /opt/ros/humble/setup.bash
 mkdir -p ~/pluto_ws/src
 cd ~/pluto_ws/src
 [ -d pluto_ros2_package ] || git clone https://github.com/DronaAviation/pluto_ros2_package.git
-[ -d pluto_cam_ros2 ]     || git clone https://github.com/DronaAviation/pluto_cam_ros2.git
 cd ~/pluto_ws
 colcon build --symlink-install
 

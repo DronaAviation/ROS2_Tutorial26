@@ -1,3 +1,6 @@
 __pycache__/
 *.pyc
 .DS_Store
+
+# Reference solutions to TASKS.md: instructors only, never committed
+solutions/

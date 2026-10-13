@@ -40,6 +40,7 @@ have_py rclpy        && pass "rclpy (Python)"     || fail "rclpy (Python)"     "
 echo "== Lab 2: Gazebo =="
 command -v ign >/dev/null        && pass "Gazebo (ign)"      || fail "Gazebo (ign)"      "sudo apt install ros-humble-ros-gz"
 have_pkg ros_gz_bridge           && pass "ros_gz_bridge"     || fail "ros_gz_bridge"     "sudo apt install ros-humble-ros-gz"
+have_pkg teleop_twist_keyboard   && pass "teleop_twist_keyboard" || fail "teleop_twist_keyboard" "sudo apt install ros-humble-teleop-twist-keyboard"
 if [ -d "$HOME/.ignition/fuel" ] && find "$HOME/.ignition/fuel" -iname '*x3*' -print -quit 2>/dev/null | grep -q .; then
     pass "X3 drone model cached"
 else
@@ -47,12 +48,10 @@ else
 fi
 
 echo "== Lab 3: Pluto =="
-for p in custom_msgs plutodrone plutoserver pluto_camera_sense; do
+for p in custom_msgs plutodrone plutoserver; do
     have_pkg "$p" && pass "$p package" || fail "$p package" "Follow README.md section 2.3 (or run install.sh), then open a new terminal"
 done
 have_py pynput               && pass "pynput"  || fail "pynput"  "pip3 install pynput"
-have_py cv2                  && pass "OpenCV"  || fail "OpenCV"  "sudo apt install ros-humble-cv-bridge python3-opencv"
-command -v ffmpeg >/dev/null && pass "ffmpeg"  || fail "ffmpeg"  "sudo apt install ffmpeg"
 
 echo "== Section 10: your own package (optional) =="
 command -v colcon >/dev/null && pass "colcon" || warn "colcon" "sudo apt install python3-colcon-common-extensions"
