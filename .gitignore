@@ -1,7 +1,3 @@
 __pycache__/
 *.pyc
 .DS_Store
-
-# Teacher-only material: never committed
-solutions/
-TEACHER_GUIDE.md
